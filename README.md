@@ -1,5 +1,5 @@
-# york_forcefit
-**York_forcefit** performs a weighted bivariate regression in which both variables have errors (Model II or errors-in-variables regression), and is specifically written to force the solution through the origin.  This code uses the maximum likelihood estimation algorithm of York et al. (2004).  The output of this function includes the estimate of slope, standard error of slope, correlation coefficient, t-statistic, and p-value.  York regression has a long history of use in the geosciences but has wide applicability in empirical studies where both variables commonly contain errors (Wehr and Saleska, 2017). 
+# yorkregress_forced
+**yorkregress_forced** performs a weighted bivariate regression in which both variables have errors (Model II or errors-in-variables regression), and is specifically written to force the solution through the origin.  This code uses the maximum likelihood estimation algorithm of York et al. (2004).  The output of this function includes the estimate of slope, standard error of slope, correlation coefficient, t-statistic, and p-value.  York regression has a long history of use in the geosciences but has wide applicability in empirical studies where both variables commonly contain errors (Wehr and Saleska, 2017). 
  
 **References:**
 
