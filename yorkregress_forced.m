@@ -1,4 +1,4 @@
-function [b,sigma_b,r,p,t,MSWD,sigma_MSWD,p_chi,i] = yorkregress_forced(X,Y,sigma_X,sigma_Y,ri)
+function [b,sigma_b,stats] = yorkregress_forced(X,Y,sigma_X,sigma_Y,ri)
 
 % YORKREGRESS_FORCED York regression forced through origin
 %
@@ -26,22 +26,23 @@ function [b,sigma_b,r,p,t,MSWD,sigma_MSWD,p_chi,i] = yorkregress_forced(X,Y,sigm
 %                   zero if not assigned.
 %
 % Output arguments
-%     b             Slope of best fit line
-%     sigma_b       Standard error of slope
-%     wr            Correlation coefficient
-%     p             p value, for H0 that slope of line = 0. Values <
-%                   significance level (say 0.05) indicate slope is
-%                   significant and non-zero.
-%     t             t statistic
-%     MSWD          Mean weighted squared deviation (MSWD), a measure of
-%                   goodness-of-fit.  Also known as reduced weighted chi
-%                   square
-%     sigma_MSWD    Standard deviation of MSWD
-%     p_chi         p value for chi-square, for H0 that the observed data 
-%                   are well represented by a linear relationship.  Values
-%                   greater than the significance level support linear
-%                   relationship.
-%     i             Number of iterations
+%     b                 Slope of best fit line
+%     sigma_b           Standard error of slope
+%     stats.r           Correlation coefficient
+%     stats.p           p value, for H0 that slope of line = 0. Values <
+%                       significance level (say 0.05) indicate slope is
+%                       significant and non-zero.
+%     stats.t           t statistic
+%     stats.MSWD        Mean weighted squared deviation (MSWD), a measure of
+%                       goodness-of-fit.  Also known as reduced weighted
+%                       chi square
+%     stats.sigma_MSWD  Standard deviation of MSWD
+%     stats.chisquare   Chi-square value
+%     stats.p_chi       p value for chi-square, for H0 that the observed data 
+%                       are well represented by a linear relationship.
+%                       Values greater than the significance level support
+%                       linear relationship.
+%     stats.i           Number of iterations
 %
 % References:
 %
@@ -135,6 +136,7 @@ while delta >= tol && i <= maxiter
     b = sum(Wi.*beta.*V)/sum(Wi.*beta.*U);    % slope of best fit line, y = bx
     delta = abs(b - b_previous);
 end
+stats.i = i;
 
 % To correctly estimate the standard error of slope, correlation
 % coefficient, the p-value, and t-statistic, we re-calculate some of the
@@ -156,9 +158,9 @@ sigma_b = sqrt(variance_b);    % standard error of slope b
 
 %% Calculate t statistic, p-value, and correlation coefficient (r)
 B = 0;
-t = (b-B)/sigma_b;
-p = 2*(1-tcdf(abs(t),n-2));
-r = sum(U.*V)./sqrt(sum(U.^2)*sum(V.^2)); 
+stats.t = (b-B)/sigma_b;
+stats.p = 2*(1-tcdf(abs(t),n-2));
+stats.r = sum(U.*V)./sqrt(sum(U.^2)*sum(V.^2)); 
 
 
 %% Calculate goodness-of-fit parameter (MSWD)  
@@ -176,10 +178,12 @@ S = sum((Wi).*(Y - b.*X).^2);   % Weighted sum of deviations from best-fit
                                 % line, or chi square.  Equivalent to
                                 % chi-square formulation in Wendt and Carl
                                 % (1991) (summation in equation 1).
-MSWD = S/(n-1);                 % Reduced weighted chi-square, or MSWD 
-sigma_MSWD = sqrt(2/(n-1));     % Standard deviation in the weighted 
-                                % reduced chi squared statistic (Wendt and
-                                % Carl, 1991; Wehr and Saleska, 2017).
+stats.chisquare = S;                              
+stats.MSWD = S/(n-1);                 % Reduced weighted chi-square, or MSWD 
+stats.sigma_MSWD = sqrt(2/(n-1));     % Standard deviation in the weighted 
+                                      % reduced chi squared statistic
+                                      % (Wendt and Carl, 1991; Wehr and
+                                      % Saleska, 2017).
                                 
 
 %% Calculate p value for chi-square statistic
@@ -189,6 +193,6 @@ sigma_MSWD = sqrt(2/(n-1));     % Standard deviation in the weighted
 % values.  The smaller of these is taken as the final value.
 p_chi_left = chi2cdf(S,n-1);    
 p_chi_right = chi2cdf(S,n-1,'upper'); 
-p_chi = min(p_chi_left,p_chi_right);
+stats.p_chi = min(p_chi_left,p_chi_right);
 
 
